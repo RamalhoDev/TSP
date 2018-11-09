@@ -21,6 +21,7 @@ void MelhorInsercao(vector<int> &solucao, int escolhido, vector<tLocais> &melhor
 void ExcluirValorEscolhido(vector<double> &conjuntoDeLocais, int localInsercao);
 void InsercaoMaisBarata(vector<double> &conjuntoDeLocais, vector<int> &solucao, vector<tLocais> &melhorCaminho);
 bool Ordena(tLocais a, tLocais b);
+double Algoritmo_RVND(vector<int> &solucao, double distancia);
 double Reinsertion(vector<int> &solucao, double distancia, int tamanho);
 double Swap(vector<int> &solucao, double distancia);
 double Two_OPT(vector<int> &solucao, double distancia);
@@ -75,6 +76,7 @@ int main(int argc, char **argv)
     melhorCaminho.clear();
   }
 
+  distancia = Algoritmo_RVND(solucao, distancia);
 
   // int valor = 0;
   // for (i = 0; i < solucao.size()-1; i++)
@@ -83,7 +85,7 @@ int main(int argc, char **argv)
   // }
   // cout << endl
   //      << "Valor = " << valor << endl;
-
+  
 
   for (i = 0; i < solucao.size(); i++)
   {
@@ -335,3 +337,38 @@ double Two_OPT(vector<int> &solucao, double distancia){
   return distancia;
 }
 
+<<<<<<< HEAD
+=======
+double Algoritmo_RVND(vector<int> &solucao, double distancia){ 
+  vector<string> algoritmos {"swap", "reinsertion", "two_opt"};
+  vector<string> copiaAlgoritmos = algoritmos;
+  
+  while(1){
+    if(copiaAlgoritmos.size() == 0)
+      break;
+
+    int escolhaDeAlgoritmoAleatoria = rand()%copiaAlgoritmos.size();
+    double novaDistancia;
+    
+    if(algoritmos[escolhaDeAlgoritmoAleatoria] == "swap"){
+      novaDistancia = Swap(solucao, distancia);
+          
+    }else if(algoritmos[escolhaDeAlgoritmoAleatoria] == "reinsertion"){
+      int tamanhoDeBlocosParaReinsercao = 1;
+      novaDistancia = Reinsertion(solucao, distancia, tamanhoDeBlocosParaReinsercao);
+
+    }else if(algoritmos[escolhaDeAlgoritmoAleatoria] == "two_opt"){
+      novaDistancia = Two_OPT(solucao, distancia);
+    }
+
+    if(distancia > novaDistancia){
+      distancia = novaDistancia;
+      copiaAlgoritmos = algoritmos;
+    }else{
+      copiaAlgoritmos.erase(copiaAlgoritmos.begin() + escolhaDeAlgoritmoAleatoria);
+    }
+  }
+
+  return distancia;
+}
+>>>>>>> 45aa33f07f46b62e90cdfdc486505ede608fed9c
