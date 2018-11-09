@@ -25,6 +25,8 @@ double Algoritmo_RVND(vector<int> &solucao, double distancia);
 double Reinsertion(vector<int> &solucao, double distancia, int tamanho);
 double Swap(vector<int> &solucao, double distancia);
 double Two_OPT(vector<int> &solucao, double distancia);
+double DoubleBridge_Pertubation(vector<int> &solucao, double distancia);
+
 //+++++++++++++++++++++++++++++++++++++++++ MAIN +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 int main(int argc, char **argv)
 {
@@ -52,7 +54,7 @@ int main(int argc, char **argv)
     conjuntoDeLocais.erase(conjuntoDeLocais.begin() + escolhido - 1);
   }
 
-  for (int i = 0; i < solucao.size() - 1; i++)
+  for (int i = 0; i < dimension() - 1; i++)
   {
     distancia += matrizAdj[solucao[i]][solucao[i + 1]];
   }
@@ -79,7 +81,7 @@ int main(int argc, char **argv)
   distancia = Algoritmo_RVND(solucao, distancia);
 
   // int valor = 0;
-  // for (i = 0; i < solucao.size()-1; i++)
+  // for (i = 0; i < dimension()-1; i++)
   // {
   //   valor+= matrizAdj[ solucao[i]][solucao[i+1]];
   // }
@@ -87,7 +89,7 @@ int main(int argc, char **argv)
   //      << "Valor = " << valor << endl;
   
 
-  for (i = 0; i < solucao.size(); i++)
+  for (i = 0; i < dimension; i++)
   {
     cout << solucao[i] << " ";
   }
@@ -142,12 +144,12 @@ void ExcluirValorEscolhido(vector<double> &conjuntoDeLocais, int localInsercao)
 }
 double Swap(vector<int> &solucao, double distancia)
 {
-  for (int i = 1; i < solucao.size(); i++)
+  for (int i = 1; i < dimension; i++)
   {
     vector<tLocais> custo;
     double CustoDeRetirarArcoIniciail = - matrizAdj[solucao[i]][solucao[i - 1]];
 
-    for (int j = i + 1; j < solucao.size() - 1; j++)
+    for (int j = i + 1; j < dimension - 1; j++)
     {
       double CustoTotalDeSwap;
       if (j != i + 1)
@@ -188,13 +190,13 @@ double Swap(vector<int> &solucao, double distancia)
 
 double Reinsertion(vector<int> &solucao, double distancia, int tamanho)
 {
-  for (int i = 1; i < solucao.size() - 1; i++)
+  for (int i = 1; i < dimension - 1; i++)
   {
     vector<tLocais> custo;
     int posicao = i + tamanho - 1;
     double CustoTotalDeTirarArcosIniciais = - matrizAdj[solucao[i - 1]][solucao[i]] - matrizAdj[solucao[posicao]][solucao[i + tamanho]] + matrizAdj[solucao[i + tamanho]][solucao[i - 1]];
     
-    for (int j = i + tamanho; j < solucao.size() - tamanho; j++)
+    for (int j = i + tamanho; j < dimension - tamanho; j++)
     {
 
       double CustoTotalDeReinsercao = CustoTotalDeTirarArcosIniciais - matrizAdj[solucao[j]][solucao[j + 1]];
@@ -213,7 +215,7 @@ double Reinsertion(vector<int> &solucao, double distancia, int tamanho)
 
     for (int j = i - tamanho; j > 0; j--)
     {
-      if (i + tamanho >= solucao.size())
+      if (i + tamanho >= dimension)
         break;
 
       double CustoTotalDeReinsercao = CustoTotalDeTirarArcosIniciais;
@@ -284,7 +286,7 @@ void MelhorInsercao(vector<int> &solucao, int escolhido, vector<tLocais> &melhor
   tLocais local;
   int distancia;
 
-  for (int i = 1; i < solucao.size(); i++)
+  for (int i = 1; i < dimension; i++)
   {
     distancia = matrizAdj[solucao[i - 1]][(int)conjuntoLocais[escolhido - 1]] + matrizAdj[solucao[i]][(int)conjuntoLocais[escolhido - 1]] - matrizAdj[solucao[i - 1]][solucao[i]];
     local.distancia = distancia;
@@ -296,12 +298,12 @@ void MelhorInsercao(vector<int> &solucao, int escolhido, vector<tLocais> &melhor
 }
 
 double Two_OPT(vector<int> &solucao, double distancia){
-  for (int i = 1; i < solucao.size()-1; i++)           
+  for (int i = 1; i < dimension-1; i++)           
   {
     vector<tLocais> custo;
     double CustoTotalDeTirarPrimeiroArco = matrizAdj[solucao[i]][solucao[i+1]];
 
-    for (int j = i + 2; j < solucao.size()-1; j++)
+    for (int j = i + 2; j < dimension-1; j++)
     {
       
       double CustoTotalDois_OPT = -CustoTotalDeTirarPrimeiroArco  - matrizAdj[solucao[j]][solucao[j+1]];
@@ -337,8 +339,6 @@ double Two_OPT(vector<int> &solucao, double distancia){
   return distancia;
 }
 
-<<<<<<< HEAD
-=======
 double Algoritmo_RVND(vector<int> &solucao, double distancia){ 
   vector<string> algoritmos {"swap", "reinsertion", "two_opt"};
   vector<string> copiaAlgoritmos = algoritmos;
@@ -371,4 +371,69 @@ double Algoritmo_RVND(vector<int> &solucao, double distancia){
 
   return distancia;
 }
->>>>>>> 45aa33f07f46b62e90cdfdc486505ede608fed9c
+
+double DoubleBridge_Pertubation(vector<int> &solucao, double distancia){
+  srand(distancia);
+
+  int indiceInicial1 = (rand() % ( dimension-1)) + 1 ;
+  int indiceFinal1 = (rand() % ( dimension-1)) + 1;
+
+  if(indiceFinal1 < indiceInicial1){
+    int aux = indiceFinal1;
+    indiceFinal1 = indiceInicial1;
+    indiceInicial1 = aux;
+ 
+    if(indiceFinal1 - indiceInicial1 > dimension / 4)
+      indiceFinal1 = indiceInicial1 + dimension / 4;
+  }
+  
+  int indiceInicial2 = (rand() % ( dimension-1)) + 1;
+  int indiceFinal2 = (rand() % ( dimension-1)) + 1;
+
+  if(indiceFinal2 < indiceInicial2){
+    int aux = indiceFinal2;
+    indiceFinal2 = indiceInicial2;
+    indiceInicial2 = aux;
+ 
+    if(indiceFinal2 - indiceInicial2 > dimension / 4)
+      indiceFinal2 = indiceInicial2 + dimension / 4;
+  }
+
+  if(indiceInicial1 <= indiceInicial2 && indiceFinal1 >= indiceInicial1){
+    
+    if(indiceInicial2 + indiceFinal1 - indiceInicial1 >= dimension-1){
+      indiceInicial2 -= (indiceFinal1 - indiceInicial1);
+      indiceFinal2 -= (indiceFinal1 - indiceInicial1);
+    }else{
+      indiceInicial2 += (indiceFinal1 - indiceInicial1);
+      indiceFinal2 += (indiceFinal1 - indiceInicial1);
+
+      if(indiceFinal2 >= dimension;
+        indiceFinal2 = dimension-1;
+    }
+  }
+
+  if(indiceFinal1+1 != indiceInicial2 && indiceInicial1 != indiceFinal2+1){
+    distancia -= matrizAdj[solucao[indiceFinal2+1]][solucao[indiceFinal1]] + matrizAdj[solucao[indiceInicial2]][solucao[indiceInicial2-1]];
+    distancia -= matrizAdj[solucao[indiceFinal1+1]][solucao[indiceFinal1]] + matrizAdj[solucao[indiceInicial1]][solucao[indiceInicial1-1]];
+    distancia += matrizAdj[solucao[indiceFinal1+1]][solucao[indiceFinal2]] + matrizAdj[solucao[indiceInicial1-1]][solucao[indiceInicial2]];
+    distancia += matrizAdj[solucao[indiceFinal2+1]][solucao[indiceFinal1]] + matrizAdj[solucao[indiceInicial2-1]][solucao[indiceInicial1]];
+  }else{
+    if(indiceFinal1+1 == indiceInicial2){
+      distancia -= matrizAdj[solucao[indiceFinal2+1]][solucao[indiceFinal1]];
+      distancia -= matrizAdj[solucao[indiceFinal1+1]][solucao[indiceFinal1]] + matrizAdj[solucao[indiceInicial1]][solucao[indiceInicial1-1]];
+      distancia += matrizAdj[solucao[indiceFinal1+1]][solucao[indiceFinal2]] + matrizAdj[solucao[indiceInicial1-1]][solucao[indiceInicial2]];
+      distancia += matrizAdj[solucao[indiceInicial2-1]][solucao[indiceInicial1]];
+  
+    }else if(indiceFinal2+1 == indiceInicial1){
+      distancia -= matrizAdj[solucao[indiceFinal2+1]][solucao[indiceFinal1]];
+      distancia -= matrizAdj[solucao[indiceFinal1+1]][solucao[indiceFinal1]] + matrizAdj[solucao[indiceInicial1]][solucao[indiceInicial1-1]];
+      distancia += matrizAdj[solucao[indiceFinal1+1]][solucao[indiceFinal2]] + matrizAdj[solucao[indiceInicial1-1]][solucao[indiceInicial2]];
+      distancia += matrizAdj[solucao[indiceInicial2-1]][solucao[indiceInicial1]];
+    }
+  }
+
+  for(int i = 0; i <  dimension ; i++){
+      
+  }
+}
