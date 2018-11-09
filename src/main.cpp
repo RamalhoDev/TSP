@@ -24,7 +24,6 @@ bool Ordena(tLocais a, tLocais b);
 double Reinsertion(vector<int> &solucao, double distancia, int tamanho);
 double Swap(vector<int> &solucao, double distancia);
 double Two_OPT(vector<int> &solucao, double distancia);
-
 //+++++++++++++++++++++++++++++++++++++++++ MAIN +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 int main(int argc, char **argv)
 {
@@ -335,3 +334,4 @@ double Two_OPT(vector<int> &solucao, double distancia){
 
   return distancia;
 }
+
