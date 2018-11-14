@@ -3,10 +3,15 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <fstream>
+#include "Util.h"
+
 using namespace std;
 
 double **matrizAdj; // matriz de adjacencia
 int dimension;      // quantidade total de vertices
+double tempoTotalSwap = 0, tempoTotalReinsertion = 0, tempoTotalTwo_Opt = 0;
+static int swapCounter = 0, reinsertionCounter = 0, two_optCounter = 0;
 
 struct tLocais
 {
@@ -39,6 +44,12 @@ int main(int argc, char **argv)
   vector <int> solucaoFinal;
   int custoFinal = 10000000;
 
+
+  fstream fileSwap, fileReinsertion, fileTwo_Opt;
+  fileSwap.open("Swap.txt", ios::app);
+  fileReinsertion.open("Reinsertion.txt", ios::app);
+  fileTwo_Opt.open("Two_opt.txt", ios::app);
+  double tempo_inicial_TSP = cpuTime();
   for(int i = 0; i < 50 ; i++){
     vector<int> solucao{1, 1};
     vector<double> conjuntoDeLocais;
@@ -100,12 +111,38 @@ int main(int argc, char **argv)
         solucao = copiaSolucao;
       }
     }
-    
+
+    fileSwap << "---------------------------------- " << "Swap || Count = " << i << " ----------------------------------" << endl;
+    fileSwap << "Quantidade de Vezes que Houve Melhora com Swap Restart " << i << " = " << swapCounter << endl;
+    swapCounter = 0;
+  
+    fileReinsertion << "---------------------------------- " << "Reinsertion || Count = " << i << " ----------------------------------" << endl;
+    fileReinsertion << "Quantidade de Vezes que Houve Melhora com Reinsertion Restart "<< i << " = " << reinsertionCounter << endl;
+    reinsertionCounter = 0;  
+  
+    fileTwo_Opt << "---------------------------------- " << "Two_Opt || Count = " << i << " ----------------------------------" << endl;  
+    fileTwo_Opt << "Quantidade de Vezes que Houve Melhora com Two-Opt Restart " << i << " = " << two_optCounter << endl;
+    two_optCounter = 0;
+
     if(custoFinal > distancia){
       solucaoFinal = solucao;
       custoFinal = distancia;
     }
   }
+
+  double tempo_final_TSP = cpuTime() - tempo_inicial_TSP ; 
+  fileSwap << "Tempo Total de Swaps = " << tempoTotalSwap << endl;
+  fileSwap << "__________________________________________ " << "END" << " __________________________________________" << endl;
+  fileSwap.close(); 
+  
+  fileReinsertion << "Tempo Total de Reinsertion = " << tempoTotalReinsertion << endl;
+  fileReinsertion << "__________________________________________ " << "END" << " __________________________________________" << endl;
+  fileReinsertion.close(); 
+
+  fileTwo_Opt << "Tempo Total de Two-Opt = " << tempoTotalTwo_Opt << endl;
+  fileTwo_Opt << "__________________________________________ " << "END" << " __________________________________________" << endl;
+  fileTwo_Opt.close();
+
   
   // int valor = 0;
   // for (int i = 0; i < dimension; i++)
@@ -115,15 +152,32 @@ int main(int argc, char **argv)
   // cout << endl
   //      << "Valor = " << valor << endl;
   
+  fstream file;
+  string nameFile = argv[1];
+  
+  int indice = nameFile.find('/');
+  int indice2 = nameFile.find('.');
+  
+  nameFile = nameFile.substr(indice+1,indice2);
+  nameFile.append(".txt");
+
+  file.open("resultadosInstancias/" + nameFile, ios::app);
+
+  file << "=========================================== " << argv[1] << " =============================================" << endl;
+
 
   for (int i = 0; i < solucaoFinal.size(); i++)
   {
-    cout << solucaoFinal[i] << " ";
+    file << solucaoFinal[i] << " ";
   }
 
-  cout << endl
+  file << endl
        << "Distancia = " << custoFinal << endl;
 
+  file << "Tempo Total TSP = " << tempo_final_TSP << endl;
+  file << "=========================================== " << "END" << " =============================================" << endl;
+
+  file.close();
   return 0;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ END MAIN ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -149,7 +203,6 @@ void printData()
 
 int GenerateRandomNumber(int tamanho)
 {
-  srand((unsigned)time(0));
   return (rand() % tamanho) + 1;
 }
 
@@ -382,17 +435,38 @@ double Algoritmo_RVND(vector<int> &solucao, double distancia){
     double novaDistancia;
     
     if(algoritmos[escolhaDeAlgoritmoAleatoria] == "swap"){
+      double startTimeSwap = cpuTime(); 
+      
       novaDistancia = Swap(solucao, distancia);
-          
+      
+      double finalTimeSwap = cpuTime()-startTimeSwap;
+      tempoTotalSwap += finalTimeSwap;
     }else if(algoritmos[escolhaDeAlgoritmoAleatoria] == "reinsertion"){
       int tamanhoDeBlocosParaReinsercao = 1;
+      double startTimeReinsertion = cpuTime(); 
+      
       novaDistancia = Reinsertion(solucao, distancia, tamanhoDeBlocosParaReinsercao);
-
+      
+      double finalTimeReinsertion = cpuTime() - startTimeReinsertion;
+      tempoTotalReinsertion += finalTimeReinsertion;
     }else if(algoritmos[escolhaDeAlgoritmoAleatoria] == "two_opt"){
+      double startTimeTwo_Opt = cpuTime(); 
+      
       novaDistancia = Two_OPT(solucao, distancia);
+      
+      double finalTimeTwo_Opt = cpuTime() - startTimeTwo_Opt; 
+      tempoTotalTwo_Opt += finalTimeTwo_Opt;
     }
 
     if(distancia > novaDistancia){
+      
+      if(algoritmos[escolhaDeAlgoritmoAleatoria] == "swap")
+        swapCounter++;
+      else if(algoritmos[escolhaDeAlgoritmoAleatoria] == "reinsertion")
+        reinsertionCounter++;
+      else if(algoritmos[escolhaDeAlgoritmoAleatoria] == "two_opt")
+        two_optCounter++;
+
       distancia = novaDistancia;
       copiaAlgoritmos = algoritmos;
     }else{
@@ -404,8 +478,7 @@ double Algoritmo_RVND(vector<int> &solucao, double distancia){
 }
 
 double DoubleBridge_Pertubation(vector<int> &solucao, double distancia){
-  srand(distancia);
-
+  
   vector <int> copiaDaSolucao;
   int indiceInicial1 = (rand() % ( dimension - 1)) + 1;
   int indiceFinal1 = (rand() % ( dimension - 1)) + 1;
