@@ -1,0 +1,8 @@
+#!/bin/bash
+
+dirInstancias= ./instances
+for arquivo in `ls ${dirInstancias}`
+    do	
+		echo "Instancia: ${dirInstancias}${arquivo}"
+		../rsa ${dirInstancias}${arquivo}
+done
