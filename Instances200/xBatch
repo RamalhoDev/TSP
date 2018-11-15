@@ -1,8 +1,11 @@
 #!/bin/bash
 
-dirInstancias= ./instances
-for arquivo in `ls ${dirInstancias}`
+dirInstancias= ./
+for arquivo in `ls *.tsp`
     do	
-		echo "Instancia: ${dirInstancias}${arquivo}"
-		../rsa ${dirInstancias}${arquivo}
+		for i in {1..10}
+			do
+				echo "Instancia: ${dirInstancias}${arquivo}"
+				../rsa ${dirInstancias}${arquivo}
+		done
 done

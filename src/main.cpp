@@ -11,8 +11,7 @@ using namespace std;
 double **matrizAdj; // matriz de adjacencia
 int dimension;      // quantidade total de vertices
 double tempoTotalSwap = 0, tempoTotalReinsertion = 0, tempoTotalTwo_Opt = 0;
-static int swapCounter = 0, reinsertionCounter = 0, two_optCounter = 0;
-
+static int swapCounter = 0, reinsertionCounter = 0, two_optCounter = 0, doubleBridgeCounter = 0;
 struct tLocais
 {
   int distancia;
@@ -45,10 +44,18 @@ int main(int argc, char **argv)
   int custoFinal = 10000000;
 
 
-  fstream fileSwap, fileReinsertion, fileTwo_Opt;
-  fileSwap.open("Swap.txt", ios::app);
-  fileReinsertion.open("Reinsertion.txt", ios::app);
-  fileTwo_Opt.open("Two_opt.txt", ios::app);
+  fstream fileSwap, fileReinsertion, fileTwo_Opt, fileDoubleBridge;
+  fileSwap.open("resultadosInstancias/Swap.txt", ios::app);
+  fileReinsertion.open("resultadosInstancias/Reinsertion.txt", ios::app);
+  fileTwo_Opt.open("resultadosInstancias/Two_opt.txt", ios::app);
+  fileDoubleBridge.open("resultadosInstancias/DoubleBridge.txt", ios::app);
+
+  fileSwap << "------------------------------------------ " << argv[1] << " - Swap" << " ------------------------------------------" << endl;   
+  fileReinsertion << "------------------------------------------ " << argv[1] << " - Reinsertion" << " ------------------------------------------" << endl;   
+  fileTwo_Opt << "------------------------------------------ " << argv[1] << " - Two-OPT" << " ------------------------------------------" << endl;   
+  fileDoubleBridge << "------------------------------------------ " << argv[1] << " - Double Bridge" << " ------------------------------------------" << endl;   
+  
+
   double tempo_inicial_TSP = cpuTime();
   for(int i = 0; i < 50 ; i++){
     vector<int> solucao{1, 1};
@@ -106,6 +113,7 @@ int main(int argc, char **argv)
       novaDistancia = Algoritmo_RVND(copiaSolucao, novaDistancia);
 
       if(novaDistancia < distancia){
+        doubleBridgeCounter++;
         j = 0;
         distancia = novaDistancia;
         solucao = copiaSolucao;
@@ -123,6 +131,12 @@ int main(int argc, char **argv)
     fileTwo_Opt << "---------------------------------- " << "Two_Opt || Count = " << i << " ----------------------------------" << endl;  
     fileTwo_Opt << "Quantidade de Vezes que Houve Melhora com Two-Opt Restart " << i << " = " << two_optCounter << endl;
     two_optCounter = 0;
+
+
+    fileDoubleBridge << "---------------------------------- " << "Double-Bridge || Count = " << i << " ----------------------------------" << endl;  
+    fileDoubleBridge << "Quantidade de Vezes que Houve Melhora com Double-Bridge Restart " << i << " = " << doubleBridgeCounter << endl;
+    doubleBridgeCounter = 0;
+
 
     if(custoFinal > distancia){
       solucaoFinal = solucao;
@@ -144,6 +158,8 @@ int main(int argc, char **argv)
   fileTwo_Opt.close();
 
   
+  fileDoubleBridge << "__________________________________________ " << "END" << " __________________________________________" << endl;
+  fileDoubleBridge.close();
   // int valor = 0;
   // for (int i = 0; i < dimension; i++)
   // {
