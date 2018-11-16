@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
+#include <climits>
 #include "Util.h"
 
 using namespace std;
@@ -42,10 +43,11 @@ int main(int argc, char **argv)
   readData(argc, argv, &dimension, &matrizAdj);
   //printData();
   tamanhoSolucao = dimension+1;
+
   srand((unsigned)time(0));
 
   vector<int> solucaoFinal;
-  int custoFinal = 10000000;
+  int custoFinal = INT_MAX;
 
   fstream fileSwap, fileReinsertion, fileReinsertion_2, fileReinsertion_3, fileTwo_Opt, fileDoubleBridge;
 
@@ -239,10 +241,12 @@ void ExcluirValorEscolhido(vector<double> &conjuntoDeLocais, int localInsercao)
 
 double Swap(vector<int> &solucao, double distancia)
 {
-
+  tLocais melhorSwap;
+  melhorSwap.distancia = 0;
+  
   for (int i = 1; i < tamanhoSolucao; i++)
   {
-    vector<tLocais> custo;
+
     double CustoDeRetirarArcoIniciail = -matrizAdj[solucao[i]][solucao[i - 1]];
 
     for (int j = i + 1; j < dimension; j++)
@@ -261,25 +265,19 @@ double Swap(vector<int> &solucao, double distancia)
         CustoTotalDeSwap += matrizAdj[solucao[i]][solucao[j + 1]] + matrizAdj[solucao[j]][solucao[i - 1]];
       }
 
-      if (CustoTotalDeSwap < 0)
+      if (CustoTotalDeSwap < melhorSwap.distancia)
       {
-        tLocais local;
-        local.distancia = CustoTotalDeSwap;
-        local.i = i;
-        local.localInsercao = j;
-        custo.push_back(local);
+        melhorSwap.distancia = CustoTotalDeSwap;
+        melhorSwap.i = i;
+        melhorSwap.localInsercao = j;
       }
     }
-
-    if (!custo.empty())
-    {
-      sort(custo.begin(), custo.end(), Ordena);
-      distancia = distancia + custo[0].distancia;
-
-      int aux = solucao[custo[0].i];
-      solucao[custo[0].i] = solucao[custo[0].localInsercao];
-      solucao[custo[0].localInsercao] = aux;
-    }
+  }
+  if(melhorSwap.distancia < 0){
+    distancia = distancia + melhorSwap.distancia;
+    int aux = solucao[melhorSwap.i];
+    solucao[melhorSwap.i] = solucao[melhorSwap.localInsercao];
+    solucao[melhorSwap.localInsercao] = aux;
   }
 
   return distancia;
@@ -287,11 +285,12 @@ double Swap(vector<int> &solucao, double distancia)
 
 double Reinsertion(vector<int> &solucao, double distancia, int tamanho)
 {
+  tLocais melhorReinsercao;
+  melhorReinsercao.distancia = 0;
   int quantidadeDeIteracoes = tamanhoSolucao - tamanho;
 
   for (int i = 1; i < quantidadeDeIteracoes; i++)
   {
-    vector<tLocais> custo;
     int posicao = i + tamanho - 1;
 
     double CustoTotalDeTirarArcosIniciais = -matrizAdj[solucao[i - 1]][solucao[i]] - matrizAdj[solucao[posicao]][solucao[i + tamanho]] + matrizAdj[solucao[i + tamanho]][solucao[i - 1]];
@@ -301,14 +300,12 @@ double Reinsertion(vector<int> &solucao, double distancia, int tamanho)
       double CustoTotalDeReinsercao = CustoTotalDeTirarArcosIniciais - matrizAdj[solucao[j]][solucao[j + 1]];
       CustoTotalDeReinsercao += matrizAdj[solucao[j]][solucao[i]] + matrizAdj[solucao[j + 1]][solucao[posicao]];
 
-      if (CustoTotalDeReinsercao < 0)
+      if (CustoTotalDeReinsercao < melhorReinsercao.distancia)
       {
-        tLocais local;
-        local.distancia = CustoTotalDeReinsercao;
-        local.i = i;
-        local.localInsercao = j;
+        melhorReinsercao.distancia = CustoTotalDeReinsercao;
+        melhorReinsercao.i = i;
+        melhorReinsercao.localInsercao = j;
 
-        custo.push_back(local);
       }
     }
 
@@ -320,44 +317,40 @@ double Reinsertion(vector<int> &solucao, double distancia, int tamanho)
       double CustoTotalDeReinsercao = CustoTotalDeTirarArcosIniciais;
       CustoTotalDeReinsercao += matrizAdj[solucao[j - 1]][solucao[i]] + matrizAdj[solucao[posicao]][solucao[j]] - matrizAdj[solucao[j]][solucao[j - 1]];
 
-      if (CustoTotalDeReinsercao < 0)
+      if (CustoTotalDeReinsercao < melhorReinsercao.distancia)
       {
-        tLocais local;
-        local.distancia = CustoTotalDeReinsercao;
-        local.i = i;
-        local.localInsercao = j - 1;
+        melhorReinsercao.distancia = CustoTotalDeReinsercao;
+        melhorReinsercao.i = i;
+        melhorReinsercao.localInsercao = j - 1;
 
-        custo.push_back(local);
       }
     }
+  }
 
-    if (!custo.empty())
-    {
-      sort(custo.begin(), custo.end(), Ordena);
-      distancia = distancia + custo[0].distancia;
+  if (melhorReinsercao.distancia < 0)
+  {
+    distancia = distancia + melhorReinsercao.distancia;
 
-      vector<int> aux = solucao;
+    vector<int> aux = solucao;
 
-      solucao.clear();
+    solucao.clear();
 
-      int j = 0;
+    int j = 0;
 
-      while (j < tamanhoSolucao){
-        if (custo[0].i == j)
-          j =  custo[0].i + tamanho;
+    while (j < tamanhoSolucao){
+      if (melhorReinsercao.i == j)
+        j =  melhorReinsercao.i + tamanho;
 
-        if (custo[0].localInsercao+1 == j)
+      if (melhorReinsercao.localInsercao+1 == j)
+      {
+        for (int x = 0; x < tamanho; x++)
         {
-          for (int x = 0; x < tamanho; x++)
-          {
-            solucao.push_back(aux[custo[0].i + x]);
-          }
+          solucao.push_back(aux[melhorReinsercao.i + x]);
         }
-
-        solucao.push_back(aux[j]);
-        j++;
-      } 
-    }
+      }
+      solucao.push_back(aux[j]);
+      j++;
+    } 
   }
   return distancia;
 }
@@ -394,10 +387,11 @@ void MelhorInsercao(vector<int> &solucao, int escolhido, vector<tLocais> &melhor
 
 double Two_OPT(vector<int> &solucao, double distancia)
 {
+  tLocais melhorTwo_OPT;
+  melhorTwo_OPT.distancia = 0;
 
   for (int i = 1; i < dimension; i++)
   {
-    vector<tLocais> custo;
     double CustoTotalDeTirarPrimeiroArco = matrizAdj[solucao[i]][solucao[i + 1]];
 
     for (int j = i + 2; j < dimension; j++)
@@ -406,30 +400,27 @@ double Two_OPT(vector<int> &solucao, double distancia)
       double CustoTotalDois_OPT = -CustoTotalDeTirarPrimeiroArco - matrizAdj[solucao[j]][solucao[j + 1]];
       CustoTotalDois_OPT += matrizAdj[solucao[i]][solucao[j]] + matrizAdj[solucao[i + 1]][solucao[j + 1]];
 
-      if (CustoTotalDois_OPT < 0)
+      if (CustoTotalDois_OPT < melhorTwo_OPT.distancia)
       {
-        tLocais local;
-        local.distancia = CustoTotalDois_OPT;
-        local.i = i + 1;
-        local.localInsercao = j + 1;
-        custo.push_back(local);
+        melhorTwo_OPT.distancia = CustoTotalDois_OPT;
+        melhorTwo_OPT.i = i + 1;
+        melhorTwo_OPT.localInsercao = j + 1;
       }
     }
+  }
 
-    if (!custo.empty())
+  if (melhorTwo_OPT.distancia < 0)
+  {
+    distancia = distancia + melhorTwo_OPT.distancia;
+
+    vector<int> aux;
+
+    for (int j = melhorTwo_OPT.localInsercao - 1; j >= melhorTwo_OPT.i; j--)
     {
-      sort(custo.begin(), custo.end(), Ordena);
-      distancia = distancia + custo[0].distancia;
-
-      vector<int> aux;
-
-      for (int j = custo[0].localInsercao - 1; j >= custo[0].i; j--)
-      {
-        aux.push_back(solucao[j]);
-      }
-
-      swap_ranges(solucao.begin() + custo[0].i, solucao.begin() + custo[0].localInsercao, aux.begin());
+      aux.push_back(solucao[j]);
     }
+
+    swap_ranges(solucao.begin() + melhorTwo_OPT.i, solucao.begin() + melhorTwo_OPT.localInsercao, aux.begin());
   }
 
   return distancia;
@@ -588,10 +579,11 @@ double DoubleBridge_Pertubation(vector<int> &solucao, double distancia)
       distancia += matrizAdj[solucao[indiceInicial2 - 1]][solucao[indiceInicial1]];
     }
   }
-
-  for (int j = 0; j < tamanhoSolucao; j++)
+  
+  int j = 0;
+  while(j < tamanhoSolucao)
   {
-    if (indiceInicial2 <= j && j <= indiceFinal2)
+    if (indiceInicial2 == j)
     {
       for (int x = indiceInicial1; x <= indiceFinal1; x++)
       {
@@ -599,7 +591,7 @@ double DoubleBridge_Pertubation(vector<int> &solucao, double distancia)
       }
       j = indiceFinal2;
     }
-    else if (indiceInicial1 <= j && j <= indiceFinal1)
+    else if (indiceInicial1 == j)
     {
       for (int x = indiceInicial2; x <= indiceFinal2; x++)
       {
@@ -609,6 +601,7 @@ double DoubleBridge_Pertubation(vector<int> &solucao, double distancia)
     }
     else if (!(indiceInicial2 <= j && j <= indiceFinal2) && !(indiceInicial1 <= j && j <= indiceFinal1))
       copiaDaSolucao.push_back(solucao[j]);
+    j++;
   }
 
   solucao = copiaDaSolucao;
