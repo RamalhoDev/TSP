@@ -154,14 +154,6 @@ int main(int argc, char **argv)
   EscreverResultadosNosArquivos(fileDoubleBridge, counterDoubleBridge, iteracoesMaxima, argv[1]);
   fileDoubleBridge.close();
   
-  // int valor = 0;
-  // for (int i = 0; i < dimension; i++)
-  // {
-  //   valor+= matrizAdj[solucaoFinal[i]][solucaoFinal[i+1]];
-  // }
-  // cout << endl
-  //      << "Valor = " << valor << endl;
-
   fstream file;
   string nameFile = argv[1];
 
