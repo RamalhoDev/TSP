@@ -572,7 +572,7 @@ void Limitar_Variacoes_Dos_Indices(int &indiceInicial, int &indiceFinal)
     indiceInicial = aux;
   }
 
-  int limiteMaximo = min(14, dimension-2);
+  int limiteMaximo = min(10, dimension/4);
 
   if ((indiceFinal - indiceInicial) > limiteMaximo)
     indiceFinal = indiceInicial + limiteMaximo;
