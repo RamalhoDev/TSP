@@ -63,7 +63,7 @@ int main(int argc, char **argv)
   {
     vector<int> solucao{1, 1}, conjuntoDeLocais = auxConjuntoDeNos;
     int tamanho, escolhido, distancia = 0, quantidadeDeInsercoesIniciais = 2;
-    bool flag = false, usados[solucao.size() + 1] = {};
+    bool usados[solucao.size() + 1] = {};
 
     for (int j = 0; j < quantidadeDeInsercoesIniciais; j++)
     {
@@ -73,7 +73,8 @@ int main(int argc, char **argv)
       conjuntoDeLocais.erase(conjuntoDeLocais.begin() + escolhido - 1);
     }
 
-    for (int j = 0; j < solucao.size() - 1; j++)
+    int quantidadeDeNosIniciais = quantidadeDeInsercoesIniciais + 1;
+    for (int j = 0; j < quantidadeDeNosIniciais; j++)
     {
       distancia += matrizAdj[solucao[j]][solucao[j + 1]];
     }
@@ -115,7 +116,11 @@ int main(int argc, char **argv)
       if (novaDistancia < distancia)
       {
         counterDoubleBridge[i]++;
-        iterMaxIls = 4 * dimension;
+        if(dimension >= 150){
+          iterMaxIls = dimension/2;
+        }else{
+          iterMaxIls = dimension;
+        }   
         distancia = novaDistancia;
         solucao = copiaSolucao;
       }
@@ -211,7 +216,7 @@ void printData()
 
 int GenerateRandomNumber(int tamanho)
 {
-  return (rand() % tamanho) + 1;
+  return (rand() % tamanho)+1;
 }
 
 bool Ordena(tLocais a, tLocais b)
@@ -234,6 +239,8 @@ void ExcluirValorEscolhido(vector<int> &conjuntoDeLocais, int localInsercao)
 double Swap(vector<int> &solucao, double distancia)
 {
   tLocais melhorSwap;
+  melhorSwap.i = 0;
+  melhorSwap.localInsercao = 0;
   melhorSwap.distancia = 0;
   
   for (int i = 1; i < dimension; i++)
@@ -258,12 +265,10 @@ double Swap(vector<int> &solucao, double distancia)
     }
   }
 
-  if(melhorSwap.distancia < 0){
-    distancia = distancia + melhorSwap.distancia;
-    int aux = solucao[melhorSwap.i];
-    solucao[melhorSwap.i] = solucao[melhorSwap.localInsercao];
-    solucao[melhorSwap.localInsercao] = aux;
-  }
+  distancia = distancia + melhorSwap.distancia;
+  int aux = solucao[melhorSwap.i];
+  solucao[melhorSwap.i] = solucao[melhorSwap.localInsercao];
+  solucao[melhorSwap.localInsercao] = aux;
 
   return distancia;
 }
@@ -293,7 +298,6 @@ double Reinsertion(vector<int> &solucao, double distancia, int tamanho)
       }
     }
 
-
     for (int j = i - tamanho; j > 0 ; j--)
     {
       double CustoTotalDeReinsercao = CustoTotalDeTirarArcosIniciais;
@@ -307,11 +311,11 @@ double Reinsertion(vector<int> &solucao, double distancia, int tamanho)
       }
     }
   }
+  
+  distancia = distancia + melhorReinsercao.distancia;
 
   if (melhorReinsercao.distancia < 0)
   {
-    distancia = distancia + melhorReinsercao.distancia;
-
     vector<int> aux;
 
     int j = 0;
@@ -390,12 +394,12 @@ double Two_OPT(vector<int> &solucao, double distancia)
     }
   }
 
+
+  distancia = distancia + melhorTwo_OPT.distancia;
+
   if (melhorTwo_OPT.distancia < 0)
   {
-    distancia = distancia + melhorTwo_OPT.distancia;
-
     vector<int> aux;
-
     for (int j = melhorTwo_OPT.localInsercao - 1; j >= melhorTwo_OPT.i; j--)
     {
       aux.push_back(solucao[j]);
@@ -495,7 +499,6 @@ double Algoritmo_RVND(vector<int> &solucao, double distancia, int interacaoNoMom
 
 double DoubleBridge_Pertubation(vector<int> &solucao, double distancia)
 {
-
   vector<int> copiaDaSolucao;
   int indiceInicial1 = (rand() % (dimension - 1)) + 1;
   int indiceFinal1 = (rand() % (dimension - 1)) + 1;
@@ -551,7 +554,7 @@ double DoubleBridge_Pertubation(vector<int> &solucao, double distancia)
       }
       j = indiceFinal1;
     }
-    else if (!(indiceInicial2 <= j && j <= indiceFinal2) && !(indiceInicial1 <= j && j <= indiceFinal1))
+    else 
       copiaDaSolucao.push_back(solucao[j]);
     j++;
   }
@@ -568,8 +571,11 @@ void Limitar_Variacoes_Dos_Indices(int &indiceInicial, int &indiceFinal)
     indiceFinal = indiceInicial;
     indiceInicial = aux;
   }
-  if ((indiceFinal - indiceInicial) > dimension / 4)
-    indiceFinal = indiceInicial + (dimension / 4);
+
+  int limiteMaximo = dimension/4;
+
+  if ((indiceFinal - indiceInicial) > limiteMaximo)
+    indiceFinal = indiceInicial + limiteMaximo;
 }
 
 void EscreverResultadosNosArquivos(fstream &File, int * counters,int iteracoesMaxima, char * NomeArquivo){
