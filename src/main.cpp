@@ -25,7 +25,7 @@ struct tLocais
 
 int GenerateRandomNumber(int tamanho);
 void printData();
-void MelhorInsercao(vector<int> &solucao, int escolhido, vector<tLocais> &melhorDistancia, vector<double> &conjuntoLocais);
+void MelhorInsercao(vector<int> &solucao, int escolhido, vector<tLocais> &melhorDistancia, vector<int> &conjuntoLocais);
 void ExcluirValorEscolhido(vector<int> &conjuntoDeLocais, int localInsercao);
 void InsercaoMaisBarata(vector<int> &conjuntoDeLocais, vector<int> &solucao, vector<tLocais> &melhorCaminho);
 void Limitar_Variacoes_Dos_Indices(int &indiceInicial, int &indiceFinal);
@@ -214,7 +214,7 @@ bool Ordena(tLocais a, tLocais b)
   return a.distancia < b.distancia;
 }
 
-void ExcluirValorEscolhido(vector<double> &conjuntoDeLocais, int localInsercao)
+void ExcluirValorEscolhido(vector<int> &conjuntoDeLocais, int localInsercao)
 {
   for (int i = 0; i < conjuntoDeLocais.size(); i++)
   {
