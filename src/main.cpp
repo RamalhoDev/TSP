@@ -97,7 +97,12 @@ int main(int argc, char **argv)
     }
 
     distancia = Algoritmo_RVND(solucao, distancia, i);
-    int iterMaxIls = 4 * dimension;
+    int iterMaxIls;
+    if(dimension >= 150){
+      iterMaxIls = dimension/2;
+    }else{
+      iterMaxIls = dimension;
+    }
     
     while (iterMaxIls--)
     {
