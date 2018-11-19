@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <fstream>
+
 #include <climits>
 #include "Util.h"
 
@@ -42,7 +42,7 @@ double DoubleBridge_Pertubation(vector<int> &solucao, double distancia);
 int main(int argc, char **argv)
 {
   readData(argc, argv, &dimension, &matrizAdj);
-  //printData();
+  // printData();
   tamanhoSolucao = dimension+1;
 
   srand((unsigned)time(0));
@@ -167,8 +167,8 @@ int main(int argc, char **argv)
 
   nameFile = nameFile.substr(indice + 1, indice2);
   nameFile.append(".txt");
-
-  file.open("/home/rodrigo/Documents/TSP/resultadosInstancias/" + nameFile, ios::app);
+  
+  file.open("/home/rodrigo/Documents/Projeto/TSP/TSP/resultadosInstancias/rat99.txt" , ios::app);
 
   file << "=========================================== " << argv[1] << " =============================================" << endl;
 
@@ -572,7 +572,7 @@ void Limitar_Variacoes_Dos_Indices(int &indiceInicial, int &indiceFinal)
     indiceInicial = aux;
   }
 
-  int limiteMaximo = min(14, dimension-2);
+  int limiteMaximo = min(15, dimension/4);
 
   if ((indiceFinal - indiceInicial) > limiteMaximo)
     indiceFinal = indiceInicial + limiteMaximo;
@@ -596,11 +596,17 @@ void VerificarLimitesParaIndices(int &indiceInicial1, int &indiceFinal1, int &in
 
     if (indiceInicial2 + quantidadeDeNosContidosEntreIndiceInicial2_IndiceFinal1>= dimension)
     {
-      int quantidadeDeNosContidosEntreIndiceInicial2_IndiceInicial1 = (indiceInicial2 - indiceInicial1) + 1;
+      //int quantidadeDeNosContidosEntreIndiceInicial2_IndiceInicial1 = (indiceInicial2 - indiceInicial1) + 1;
       int quantidadeDeVerticesEntreIndiceInicial1_IndiceFinal2 = (indiceFinal2 - indiceInicial1) + 1;
-
-      indiceInicial2 -= quantidadeDeNosContidosEntreIndiceInicial2_IndiceInicial1;
       indiceFinal2 -= quantidadeDeVerticesEntreIndiceInicial1_IndiceFinal2;
+      int novoIndice2 = indiceInicial2 - quantidadeDeVerticesEntreIndiceInicial1_IndiceFinal2;
+      
+      if(novoIndice2 < 2){
+        indiceInicial2 = 1;
+      }else{
+        indiceInicial2 = novoIndice2;
+      }
+      //indiceInicial2 -= quantidadeDeNosContidosEntreIndiceInicial2_IndiceInicial1;
     }
     else
     {
