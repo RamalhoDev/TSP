@@ -135,27 +135,27 @@ int main(int argc, char **argv)
 
   double tempo_final_TSP = cpuTime() - tempo_inicial_TSP;
   
-  fileSwap.open("resultadosInstancias/Swap.txt", ios::app);
+  fileSwap.open("/home/rodrigo/Documents/TSP/resultadosInstancias/Swap.txt", ios::app);
   EscreverResultadosNosArquivos(fileSwap, counterSwaps, iteracoesMaxima, argv[1]);
   fileSwap.close();
   
-  fileReinsertion.open("resultadosInstancias/Reinsertion.txt", ios::app);
+  fileReinsertion.open("/home/rodrigo/Documents/TSP/resultadosInstancias/Reinsertion.txt", ios::app);
   EscreverResultadosNosArquivos(fileReinsertion, counterReinsertion, iteracoesMaxima, argv[1]);
   fileReinsertion.close();
   
-  fileReinsertion_3.open("resultadosInstancias/Reinsertion_3.txt", ios::app);
+  fileReinsertion_3.open("/home/rodrigo/Documents/TSP/resultadosInstancias/Reinsertion_3.txt", ios::app);
   EscreverResultadosNosArquivos(fileReinsertion_3, counterReinsertion_3, iteracoesMaxima, argv[1]);
   fileReinsertion_3.close();
   
-  fileReinsertion_2.open("resultadosInstancias/Reinsertion_2.txt", ios::app);
+  fileReinsertion_2.open("/home/rodrigo/Documents/TSP/resultadosInstancias/Reinsertion_2.txt", ios::app);
   EscreverResultadosNosArquivos(fileReinsertion_2, counterReinsertion_2, iteracoesMaxima, argv[1]);
   fileReinsertion_2.close();
   
-  fileTwo_Opt.open("resultadosInstancias/Two_opt.txt", ios::app);
+  fileTwo_Opt.open("/home/rodrigo/Documents/TSP/resultadosInstancias/Two_opt.txt", ios::app);
   EscreverResultadosNosArquivos(fileTwo_Opt, counterTwo_Opt, iteracoesMaxima, argv[1]);
   fileTwo_Opt.close();
   
-  fileDoubleBridge.open("resultadosInstancias/DoubleBridge.txt", ios::app);
+  fileDoubleBridge.open("/home/rodrigo/Documents/TSP/resultadosInstancias/DoubleBridge.txt", ios::app);
   EscreverResultadosNosArquivos(fileDoubleBridge, counterDoubleBridge, iteracoesMaxima, argv[1]);
   fileDoubleBridge.close();
   
@@ -168,7 +168,7 @@ int main(int argc, char **argv)
   nameFile = nameFile.substr(indice + 1, indice2);
   nameFile.append(".txt");
 
-  file.open("resultadosInstancias/" + nameFile, ios::app);
+  file.open("/home/rodrigo/Documents/TSP/resultadosInstancias/" + nameFile, ios::app);
 
   file << "=========================================== " << argv[1] << " =============================================" << endl;
 
@@ -470,7 +470,7 @@ double Algoritmo_RVND(vector<int> &solucao, double distancia, int interacaoNoMom
       tempoTotalTwo_Opt += cpuTime() - startTimeTwo_Opt;
       
     }
-
+    
     if (distancia > novaDistancia)
     {
 
@@ -572,7 +572,7 @@ void Limitar_Variacoes_Dos_Indices(int &indiceInicial, int &indiceFinal)
     indiceInicial = aux;
   }
 
-  int limiteMaximo = dimension/4;
+  int limiteMaximo = min(14, dimension-2);
 
   if ((indiceFinal - indiceInicial) > limiteMaximo)
     indiceFinal = indiceInicial + limiteMaximo;
@@ -592,20 +592,20 @@ void VerificarLimitesParaIndices(int &indiceInicial1, int &indiceFinal1, int &in
   
   if (indiceInicial1 <= indiceInicial2 && indiceInicial2 <= indiceFinal1)
   {
-    int quantidadeDeNosContidosNoPrimeiroIntervalo = (indiceFinal1 - indiceInicial1) + 1;
+    int quantidadeDeNosContidosEntreIndiceInicial2_IndiceFinal1 = (indiceFinal1 - indiceInicial2) + 1;
 
-    if (indiceInicial2 + quantidadeDeNosContidosNoPrimeiroIntervalo>= dimension)
+    if (indiceInicial2 + quantidadeDeNosContidosEntreIndiceInicial2_IndiceFinal1>= dimension)
     {
-      indiceInicial2 -= quantidadeDeNosContidosNoPrimeiroIntervalo;
-      indiceFinal2 -= quantidadeDeNosContidosNoPrimeiroIntervalo;
+      int quantidadeDeNosContidosEntreIndiceInicial2_IndiceInicial1 = (indiceInicial2 - indiceInicial1) + 1;
+      int quantidadeDeVerticesEntreIndiceInicial1_IndiceFinal2 = (indiceFinal2 - indiceInicial1) + 1;
 
-      if (indiceInicial1 <= indiceFinal2 && indiceFinal2 <= indiceFinal1)
-        indiceFinal2 -= (indiceFinal2 - indiceInicial1 + 1);
+      indiceInicial2 -= quantidadeDeNosContidosEntreIndiceInicial2_IndiceInicial1;
+      indiceFinal2 -= quantidadeDeVerticesEntreIndiceInicial1_IndiceFinal2;
     }
     else
     {
-      indiceInicial2 += quantidadeDeNosContidosNoPrimeiroIntervalo;
-      indiceFinal2 += quantidadeDeNosContidosNoPrimeiroIntervalo;
+      indiceInicial2 += quantidadeDeNosContidosEntreIndiceInicial2_IndiceFinal1;
+      indiceFinal2 += quantidadeDeNosContidosEntreIndiceInicial2_IndiceFinal1;
 
       if (indiceFinal2 >= dimension)
         indiceFinal2 = dimension - 1;
@@ -613,7 +613,7 @@ void VerificarLimitesParaIndices(int &indiceInicial1, int &indiceFinal1, int &in
   }
   else if (indiceInicial1 <= indiceFinal2 && indiceInicial1 > indiceInicial2)
   {
-    int quantidadeDeVerticesEntreIndiceInicial1_IndiceFinal2 = indiceFinal2 - indiceInicial1;
-    indiceFinal2 -= (quantidadeDeVerticesEntreIndiceInicial1_IndiceFinal2 + 1);
+    int quantidadeDeVerticesEntreIndiceInicial1_IndiceFinal2 = indiceFinal2 - indiceInicial1 + 1;
+    indiceFinal2 -= quantidadeDeVerticesEntreIndiceInicial1_IndiceFinal2;
   }
 }
